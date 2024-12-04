@@ -9,7 +9,6 @@ def index(request):
     context = {
         'item_list': item_list,
     }
-    print(item_list)
     return render(request, 'food/index.html', context)
 
 def item(request):
