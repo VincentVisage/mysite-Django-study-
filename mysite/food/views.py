@@ -15,8 +15,8 @@ def index(request):
 def item(request):
     return HttpResponse('<h1>This is new item view</h1>')
 
-def detail(request, item_id):
-    item = Item.objects.get(pk=item_id)
+def detail(request, id):
+    item = Item.objects.get(id=id)
     context = {
         'item':item,
     }
@@ -30,3 +30,28 @@ def create_item(request):
         return redirect('food:index')
     
     return render(request, 'food/item-form.html', {'form':form})
+
+def update_item(request, id):
+    item = Item.objects.get(id=id)
+    form = ItemForm(request.POST or None, instance=item)
+
+    if form.is_valid():
+        form.save()
+        return redirect('food:index')
+
+    return render(request, 'food/item-form.html', {'form':form, 'item':item})
+
+def delete_item(request, id):
+    item = Item.objects.get(id=id)
+
+    if request.method == 'POST':
+        confirm = request.POST.get('confirm')
+        if confirm == 'yes':
+            item.delete()
+            return redirect('food:index')
+        elif confirm == 'no':
+            return redirect('food:detail', id=id)
+        
+        return redirect('food:index')
+    
+    return render(request, 'food/delete-item.html', {'item':item})
