@@ -1,3 +1,4 @@
+import django.contrib.auth.models
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from .forms import ItemForm
@@ -5,6 +6,7 @@ from .models import Item
 from django.template import loader
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView
 # Create your views here.
 
 
@@ -36,14 +38,24 @@ class FoodDetail(DetailView):
     template_name = 'food/detail.html'
 
 
-def create_item(request):
-    form = ItemForm(request.POST or None)
+# def create_item(request):
+#     form = ItemForm(request.POST or None)
 
-    if form.is_valid():
-        form.save()
-        return redirect('food:index')
+#     if form.is_valid():
+#         form.save()
+#         return redirect('food:index')
     
-    return render(request, 'food/item-form.html', {'form':form})
+#     return render(request, 'food/item-form.html', {'form':form})
+class CreateItem(CreateView):
+    model = Item
+    fields = ['item_name', 'item_desc', 'item_price', 'item_image']
+    template_name = 'food/item-form.html'
+
+    def form_valid(self, form):
+        form.instance.user_name = self.request.user
+        
+        return super().form_valid(form)
+
 
 def update_item(request, id):
     item = Item.objects.get(id=id)
